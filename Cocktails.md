@@ -79,11 +79,19 @@ go simple and use a cocktail glass.
 
 # Glass types and drinks:
 
-I: - selected the top 5 glass types, - retrieved the top 10 most popular
-drink types for said glasses, - mutated the drink variable to only
-contain 11 levels: either one of these top drinks, or “other” - grouped
-by glass and drink type and sorted by occurence in a descending order,
-then took the top 20 results and - plotted everything in a bar chart
+I:
+
+1)  selected the top 5 glass types,
+
+2)  retrieved the top 10 most popular drink types for said glasses,
+
+3)  mutated the drink variable to only contain 11 levels: either one of
+    these top drinks, or “other”
+
+4)  grouped by glass and drink type and sorted by occurence in a
+    descending order, then took the top 20 results and
+
+5)  plotted everything in a bar chart
 
 ![](Cocktails_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 

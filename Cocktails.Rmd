@@ -257,11 +257,16 @@ kable(glass_types)
 # Glass types and drinks:
 
 I:
- - selected the top 5 glass types, 
- - retrieved the top 10 most popular drink types for said glasses,
- - mutated the drink variable to only contain 11 levels: either one of these top drinks, or "other"
- - grouped by glass and drink type and sorted by occurence in a descending order, then took the top 20 results and
- - plotted everything in a bar chart
+
+a) selected the top 5 glass types, 
+
+b) retrieved the top 10 most popular drink types for said glasses,
+
+c) mutated the drink variable to only contain 11 levels: either one of these top drinks, or "other"
+
+d) grouped by glass and drink type and sorted by occurence in a descending order, then took the top 20 results and
+
+e) plotted everything in a bar chart
  
 
 ```{r}
