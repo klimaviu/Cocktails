@@ -1,0 +1,464 @@
+---
+title: "Cocktails"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, error = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r, echo = FALSE}
+
+library(readr)
+library(tidyverse)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(janitor)
+library(wesanderson)
+library(png)
+library(ggimage)
+library(cowplot)
+library(knitr)
+library(ggcharts)
+library(ggthemes)
+
+```
+
+
+```{r}
+cocktails <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/cocktails.csv')
+boston_cocktails <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/boston_cocktails.csv')
+
+clean_vec <- function (x, refactor=FALSE) {
+  
+  require(magrittr, quietly=TRUE)
+  
+  if (!(is.character(x) || is.factor(x))) return(x)
+  
+  x_is_factor <- is.factor(x)
+  
+  old_names <- as.character(x)
+  
+  new_names <- old_names %>%
+    tolower(.)
+  
+  if (x_is_factor && refactor) factor(new_names) else new_names
+  
+}
+
+#fixing groups
+cocktails <- cocktails %>% 
+  mutate(
+    alcoholic = fct_recode(factor(alcoholic),
+                           "Non alcoholic" = "Non Alcoholic"),
+    ingredient = clean_vec(ingredient),
+    drink = clean_vec(drink),
+    glass = clean_vec(glass)
+  )
+
+theme_set(theme_solarized())
+```
+
+# The distribution of alcoholic vs non-alcoholic drinks
+
+The results are not surprising - most of the cocktails are alcoholic.
+
+```{r}
+
+cocktails %>% 
+  ggplot()+
+  geom_bar(aes(alcoholic, fill = alcoholic),
+           colour = "black")+
+  scale_fill_manual(values = wes_palette("Zissou1", type = "continuous", n = 4))+
+  xlab("Type of drink")
+```
+
+# Top 25 ingredients
+
+I took the top 25 most common ingredients and graphed them in a circular manner - this was inspired by @JacobHakim2 over at Twitter.
+
+```{r}
+top <- cocktails %>% 
+  group_by(ingredient) %>% 
+  summarise(count = sum(n())) %>% 
+  arrange(desc(count)) %>% 
+  top_n(25)
+
+top_angle <-  90 - 360 * (c(1:nrow(top)) - 0.5)/nrow(top)
+
+top %>% 
+  ggplot(aes(reorder(ingredient, -count), count))+
+  geom_bar(position="stack", stat="identity", aes(fill = ingredient),
+           show.legend = FALSE, colour = "black") +
+  scale_x_discrete()+
+  ylim(-180, 100) +
+  theme_void()+
+  coord_polar(direction = 1,
+              clip = "off")+
+  geom_text(data=top, aes(x=ingredient, y=count, label=ingredient), 
+            color="#000000", family="Calibri",
+            alpha= 0.8 , size=3, inherit.aes = FALSE,
+            angle = top_angle, hjust = -0.1)+
+  theme(panel.background = element_rect( color = "white"))+
+  scale_fill_manual(values = wes_palette("Zissou1", type = "continuous", n = nrow(top)))+
+    annotate(geom = "text",
+           x=0,y=-175,
+           hjust=.5, vjust=-1,
+           label= paste("top", nrow(top)),
+           size=10, lineheight=.8,
+           family="serif",
+           color="#100404")+
+  annotate(geom = "text",
+           x=0,y=-175,
+           hjust=.5, vjust=.75,
+           label="ingredients",
+           size=10, lineheight=.8,
+           family="serif",
+           color="#100404")
+
+```
+
+# Ingredients in alcoholic vs non-alcoholic drinks
+
+I took the most common ingredients in non alcoholic drinks and then compared their occurrence in both categories.
+
+```{r}
+
+top_non_alc <- cocktails %>% 
+  filter(alcoholic %in% "Non alcoholic") %>% 
+  group_by(ingredient) %>% 
+  summarise(count = sum(n())) %>% 
+  arrange(desc(count)) %>% 
+  top_n(15)
+
+top_non_alc_ingredients <- top_non_alc$ingredient
+
+cocktails %>% 
+  filter(ingredient %in% top_non_alc_ingredients,
+           alcoholic %in% c("Alcoholic", "Non alcoholic"))%>% 
+  group_by(alcoholic, ingredient) %>% 
+  summarise(sum = sum(n()))%>% 
+  arrange(desc(sum)) %>% 
+  pyramid_chart(x = ingredient, y = sum, group = alcoholic,
+                bar_colors = c("#C0CA1B", "4898DC"),
+                xlab = "Ingredient occurence")
+```
+
+# Types of drink categories:
+
+"Ordinary Drink" appears to be the most common category in this dataset.
+
+```{r}
+categories <- cocktails %>% 
+  group_by(category) %>% 
+  summarise(count = sum(n()))
+
+categories %>% 
+  ggplot(aes(reorder(category, count), count))+
+  geom_col(aes(fill = category), 
+           show.legend = FALSE, colour = "black")+
+  theme(axis.text.x = element_text(angle = 90))+
+  scale_fill_manual(values = wes_palette("Zissou1", type = "continuous", n = 11))+
+  coord_flip()+
+  labs(x = "Category", y = "Occurence")
+```
+
+# The most common ingredients in ordinary drinks:
+
+Gin is the clear winner here, followed by vodka and lemon juice.
+
+```{r}
+cocktails %>%
+  filter(category == "Ordinary Drink") %>% 
+  group_by(ingredient) %>% 
+  summarise(sum = sum(n())) %>% 
+  arrange(desc(sum)) %>% 
+  top_n(10) %>% 
+  lollipop_chart(x = ingredient, y = sum,
+                 line_color = "dark green", 
+                 point_color = "dark blue")+
+  theme_solarized()
+```
+
+# Which category uses the most ingredients on average?
+
+## A table:
+
+```{r}
+avg_ingr <- cocktails %>%
+  group_by(category) %>% 
+  summarise(avg_ingredients = mean(ingredient_number)) %>% 
+  arrange(desc(avg_ingredients))
+
+kable(avg_ingr,
+      col.names = c("Category", "Average ingredient count"))
+
+```
+
+Looks like it is homemade liqueur.
+
+## A graph:
+
+```{r, fig.cap= "Average ingredient count by category"}
+cocktails %>%
+  group_by(category) %>% 
+  summarise(avg_ingredients = mean(ingredient_number)) %>% 
+  ggplot()+
+  geom_col(aes(reorder(category, -avg_ingredients), avg_ingredients, fill = category),
+           show.legend = FALSE, colour = "black")+
+  theme(axis.text.x = element_text(angle = 90))+
+  labs(x ="Category", y = "Average ingredient count")+
+  scale_fill_manual(values = wes_palette("Zissou1", type = "continuous", n = 11))
+
+```
+
+## Ingredients in homemade liqueur:
+
+I wouldn't have expected to see coffee here! 
+
+```{r, fig.width = 4, fig.height= 8}
+
+top_liq <- cocktails %>% 
+  filter(category == "Homemade Liqueur") %>% 
+  group_by(ingredient) %>% 
+  summarise(count = sum(n()))%>% 
+  arrange(desc(count))%>% 
+  head(10)
+
+top_liq_ingredient <- top_liq$ingredient
+
+cocktails %>% 
+  mutate(ingredient = factor(ifelse(ingredient %in% top_liq_ingredient, ingredient, "other"))) %>% 
+  filter(category == "Homemade Liqueur") %>% 
+  ggplot()+
+  geom_bar(aes(category, fill = ingredient),
+           color = "black")+
+  scale_fill_manual(values = wes_palette("Zissou1", type = "continuous", n = 11))
+  
+
+```
+
+# What are the top 5 most commonly recommended glass types?
+
+If you want to have the most luck at having picked the correct glass - go simple and use a cocktail glass.
+
+```{r}
+glass_types <- cocktails %>% 
+  group_by(glass) %>% 
+  summarise(sum = sum(n())) %>% 
+  arrange(desc(sum)) %>% 
+  top_n(5)
+
+kable(glass_types)
+
+```
+
+# Glass types and drinks:
+
+I:
+ - selected the top 5 glass types, 
+ - retrieved the top 10 most popular drink types for said glasses,
+ - mutated the drink variable to only contain 11 levels: either one of these top drinks, or "other"
+ - grouped by glass and drink type and sorted by occurence in a descending order, then took the top 20 results and
+ - plotted everything in a bar chart
+ 
+
+```{r}
+
+top_glass <- glass_types$glass
+
+top_drinks <- cocktails %>% 
+  filter(glass %in% top_glass) %>% 
+  group_by(drink) %>% 
+  summarise(sum = sum(n())) %>% 
+  arrange(desc(sum)) %>% 
+  top_n(10)
+
+top_drinks <- top_drinks$drink
+
+cocktails %>% 
+  mutate(
+    drink = factor(ifelse(drink %in% top_drinks, drink, "other"))
+  ) %>% 
+  filter(glass %in% top_glass) %>% 
+  group_by(glass, drink) %>% 
+  summarise(count = sum(n())) %>% 
+  arrange(desc(count)) %>% 
+  top_n(20) %>% 
+  ggplot()+
+  geom_bar(aes(glass, fill = drink),
+           color = "black")+
+  scale_fill_manual(values = wes_palette("Zissou1", type = "continuous", n = 13))+
+  theme(axis.text.x = element_text(angle = 90))+
+  labs(x = "Type of glass",
+       y = "Occurence")
+
+```
+
+# Which ingredients are the most commonly used with gin?
+
+The top 3 would be lemon juice, grenadine and dry vermouth.
+
+```{r}
+gin <- cocktails %>% filter(ingredient == "gin")
+gin_id <- gin$id_drink
+
+gin_combos <- cocktails %>% 
+  filter(id_drink %in% gin_id)
+
+gin_combos %>% 
+  filter(ingredient != "gin") %>% 
+  group_by(ingredient) %>% 
+  summarise(sum = sum(n())) %>% 
+  arrange(desc(sum)) %>% 
+  top_n(10) %>% 
+  lollipop_chart(x = ingredient, y = sum,
+                 line_color = "orange", 
+                 point_color = "red")+
+  theme_solarized()
+```
+  
+# Which drinks have the longest names?
+
+There are certainly some intriguing specimens here.
+  
+```{r}
+  long <- cocktails %>% 
+  mutate(name_length = nchar(drink)) %>% 
+  group_by(drink) %>% 
+  summarise(name_length = mean(name_length)) %>% 
+  arrange(desc(name_length)) %>% 
+  top_n(10) %>% 
+  inner_join(cocktails) %>% 
+  select(drink, name_length, id_drink) %>% 
+  distinct()
+
+kable(long, col.names = c("Drink name", "Length", "Drink Id"))
+```
+
+# Let's plot some of the more interesting cases:
+
+Not as complicated as the names make them sound, huh?
+
+```{r, fig.width= 9, fig.height= 5}
+
+cocktails %>% 
+  filter(id_drink %in% c(14029, 16447, 13200)) %>% 
+  select(drink, ingredient) %>% 
+  ggplot()+
+  geom_count(aes(drink, ingredient, color = ingredient),
+             show.legend= FALSE)+
+  facet_wrap(~drink)+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
+  scale_color_manual(values = wes_palette("Zissou1", type = "continuous", n = 10))
+
+```
+
+# A random sample of drinks containing both gin and lemon juice:
+
+```{r, fig.width= 12, fig.height= 6}
+set.seed(899)
+
+gin <- cocktails %>% filter(ingredient == "gin")
+gin_id <- gin$id_drink
+
+gin_combos <- cocktails %>% 
+  filter(id_drink %in% gin_id)
+
+lemon <- cocktails %>% filter(ingredient == "lemon juice")
+lemon_id <- lemon$id_drink
+
+lemon_combos <- cocktails %>% 
+  filter(id_drink %in% lemon_id)
+
+both_gin_lemon_juice <- inner_join(lemon_combos, gin_combos)
+
+ids <- sample(both_gin_lemon_juice$id_drink, 4, replace = TRUE)
+
+both_gin_lemon_juice %>% 
+  filter(id_drink %in% ids) %>% 
+  select(drink, ingredient) %>% 
+  ggplot()+
+  geom_count(aes(drink, ingredient, color = ingredient),
+             show.legend= FALSE)+
+  facet_wrap(~drink, nrow = 1)+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
+  scale_color_viridis_d()
+```
+
+# Boston cocktails
+
+Let's have a short glance at this dataset. What are the top ingredients and how often do they occur in all categories but the Cocktail Classics?
+
+```{r, fig.width = 15, fig.height= 10}
+boston_cocktails <- boston_cocktails %>% 
+  mutate(
+    category = factor(category),
+    measure = factor(measure)
+  )
+
+top_bost <- boston_cocktails %>% 
+  filter(category != "Cocktail Classics") %>% 
+  group_by(ingredient) %>% 
+  summarise(count = sum(n())) %>% 
+  arrange(desc(count)) %>% 
+  head(20)
+
+top_bost_ingredients <- top_bost$ingredient
+
+boston_cocktails %>%
+  filter(category != "Cocktail Classics") %>% 
+  mutate(ingredient = ifelse(ingredient %in% top_bost_ingredients, ingredient, "Other")) %>% 
+  ggplot()+
+  geom_bar(aes(category, fill = ingredient),
+           color = "black")+
+  theme(axis.text.x = element_text(angle = 90))+
+  scale_fill_manual(values = wes_palette("Zissou1", type = "continuous", n = 21))+
+  coord_flip()
+
+
+```
+
+# An apology to the Cocktail Classics for having excluded them:
+
+Everybody likes classics, right?
+
+```{r, fig.width = 4, fig.height = 8}
+boston_cocktails %>%
+  filter(category == "Cocktail Classics") %>% 
+  mutate(ingredient = ifelse(ingredient %in% top_bost_ingredients, ingredient, "Other")) %>% 
+  ggplot()+
+  geom_bar(aes(category, fill = ingredient),
+           color = "black")+
+  theme(axis.text.x = element_text(angle = 90))+
+  scale_fill_manual(values = wes_palette("Zissou1", type = "continuous", n = 17))
+
+```
+
+# A random sample of drinks:
+
+The boston cocktail data set provides a measure for each ingredient, which is handy for anyone wanting to test the drink recipes.
+
+```{r, fig.width= 12, fig.height= 6}
+
+set.seed(222)
+boston_sample <- sample(boston_cocktails$row_id, 4, replace = FALSE)
+
+boston_cocktails %>% 
+  filter(row_id %in% boston_sample) %>% 
+  ggplot(aes(name, ingredient, color = ingredient))+
+  geom_label(aes(label = measure),
+             show.legend = FALSE)+
+  facet_wrap(~name, nrow = 1)+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
+  scale_color_manual(values = wes_palette("Zissou1", type = "continuous", n = 16))
+  
+
+```
