@@ -32,6 +32,8 @@ option for this visualization:
 
 ![](Cocktails_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
+Also, thank God no one uses yoghurt in alcoholic drinks.
+
 # Types of drink categories:
 
 “Ordinary Drink” appears to be the most common category in this dataset.
