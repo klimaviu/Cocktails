@@ -139,7 +139,6 @@ cocktails %>%
            alcoholic %in% c("Alcoholic", "Non alcoholic"))%>% 
   group_by(alcoholic, ingredient) %>% 
   summarise(sum = sum(n()))%>% 
-  arrange(desc(sum)) %>% 
   pyramid_chart(x = ingredient, y = sum, group = alcoholic,
                 bar_colors = c("#C0CA1B", "4898DC"),
                 xlab = "Ingredient occurence")
