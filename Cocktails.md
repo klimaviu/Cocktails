@@ -19,19 +19,32 @@ manner - this was inspired by @JacobHakim2 over at Twitter.
 I took the most common ingredients in non alcoholic drinks and then
 compared their occurrence in both categories.
 
+I wanted to try out a new package for graphs - ggcharts. However…
+
 ![](Cocktails_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+The pyramid\_chart() function was not working properly despite my
+salvaging attempts - the columns only match the proper ingredient names
+on the right hand side of the chart.
+
+Thus, I ended up resorting to the classic ggplot() + facet\_wrap()
+option for this visualization:
+
+![](Cocktails_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 # Types of drink categories:
 
 “Ordinary Drink” appears to be the most common category in this dataset.
 
-![](Cocktails_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Cocktails_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 # The most common ingredients in ordinary drinks:
 
 Gin is the clear winner here, followed by vodka and lemon juice.
 
-![](Cocktails_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+Here the ggcharts package worked nicely, without presenting any issues.
+
+![](Cocktails_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 # Which category uses the most ingredients on average?
 
@@ -56,13 +69,13 @@ Looks like it is homemade liqueur.
 ## A graph:
 
 ![Average ingredient count by
-category](Cocktails_files/figure-gfm/unnamed-chunk-9-1.png)
+category](Cocktails_files/figure-gfm/unnamed-chunk-10-1.png)
 
 ## Ingredients in homemade liqueur:
 
 I wouldn’t have expected to see coffee here\!
 
-![](Cocktails_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Cocktails_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 # What are the top 5 most commonly recommended glass types?
 
@@ -93,13 +106,13 @@ I:
 
 5)  plotted everything in a bar chart
 
-![](Cocktails_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Cocktails_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 # Which ingredients are the most commonly used with gin?
 
 The top 3 would be lemon juice, grenadine and dry vermouth.
 
-![](Cocktails_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Cocktails_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 # Which drinks have the longest names?
 
@@ -122,28 +135,28 @@ There are certainly some intriguing specimens here.
 
 Not as complicated as the names make them sound, huh?
 
-![](Cocktails_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](Cocktails_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 # A random sample of drinks containing both gin and lemon juice:
 
-![](Cocktails_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Cocktails_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 # Boston cocktails
 
 Let’s have a short glance at this dataset. What are the top ingredients
 and how often do they occur in all categories but the Cocktail Classics?
 
-![](Cocktails_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Cocktails_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 # An apology to the Cocktail Classics for having excluded them:
 
 Everybody likes classics, right?
 
-![](Cocktails_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Cocktails_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 # A random sample of drinks:
 
 The boston cocktail data set provides a measure for each ingredient,
 which is handy for anyone wanting to test the drink recipes.
 
-![](Cocktails_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](Cocktails_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->

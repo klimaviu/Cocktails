@@ -123,6 +123,8 @@ top %>%
 
 I took the most common ingredients in non alcoholic drinks and then compared their occurrence in both categories.
 
+I wanted to try out a new package for graphs - ggcharts. However...
+
 ```{r}
 
 top_non_alc <- cocktails %>% 
@@ -130,18 +132,74 @@ top_non_alc <- cocktails %>%
   group_by(ingredient) %>% 
   summarise(count = sum(n())) %>% 
   arrange(desc(count)) %>% 
-  top_n(15)
+  head(15)
 
 top_non_alc_ingredients <- top_non_alc$ingredient
 
+rowid_nalc <- cocktails %>%
+  filter(alcoholic == "Non alcoholic",
+         ingredient %in% top_non_alc_ingredients)
+
+rowid_nalc <- rowid_nalc$row_id
+
+rowid_alc <- cocktails %>%
+  filter(alcoholic == "Alcoholic",
+         ingredient %in% top_non_alc_ingredients)
+
+rowid_alc <- rowid_alc$row_id
+
+#Figuring out which of the ingredients are not present in Alcoholic drinks at all:
+
+top_non_alc_ingr <- top_non_alc %>%
+  select(ingredient)
+
+inx <- cocktails %>% 
+  filter(ingredient %in% top_non_alc_ingredients, 
+         alcoholic == "Alcoholic") %>% 
+  inner_join(top_non_alc_ingr) %>% 
+  select(ingredient) %>% 
+  distinct()
+
+not_in <- anti_join(top_non_alc_ingr, inx)
+
+not_in_rows <- data.frame(c("Alcoholic", "Alcoholic", "Alcoholic"),
+                          c("ginger", "yoghurt", "chocolate"),
+                          c(0, 0, 0))
+
+names(not_in_rows) <- c("alcoholic", "ingredient", "sum")
+
 cocktails %>% 
-  filter(ingredient %in% top_non_alc_ingredients,
-           alcoholic %in% c("Alcoholic", "Non alcoholic"))%>% 
+  filter(row_id %in% c(rowid_alc, rowid_nalc),
+         ingredient %in% top_non_alc_ingredients,
+         alcoholic %in% c("Alcoholic", "Non alcoholic")) %>% 
   group_by(alcoholic, ingredient) %>% 
-  summarise(sum = sum(n()))%>% 
+  summarise(sum = sum(n())) %>% 
+  rbind(not_in_rows) %>% 
   pyramid_chart(x = ingredient, y = sum, group = alcoholic,
                 bar_colors = c("#C0CA1B", "4898DC"),
                 xlab = "Ingredient occurence")
+```
+
+The pyramid_chart() function was not working properly despite my salvaging attempts - the columns only match the proper ingredient names on the right hand side of the chart.
+
+Thus, I ended up resorting to the classic ggplot() + facet_wrap() option for this visualization:
+
+```{r}
+cocktails %>% 
+  filter(row_id %in% c(rowid_alc, rowid_nalc),
+         ingredient %in% top_non_alc_ingredients,
+         alcoholic %in% c("Alcoholic", "Non alcoholic")) %>% 
+  group_by(alcoholic, ingredient) %>% 
+  summarise(sum = sum(n())) %>% 
+  rbind(not_in_rows) %>% 
+  ggplot()+
+  geom_col(aes(ingredient, sum, fill = alcoholic),
+           show.legend = FALSE, color = "black")+
+  facet_wrap(~alcoholic)+
+  scale_fill_manual(values = c("#C0CA1B", "4898DC"))+
+  coord_flip()+
+  ylab("Ingredient occurence")
+
 ```
 
 # Types of drink categories:
@@ -166,6 +224,8 @@ categories %>%
 # The most common ingredients in ordinary drinks:
 
 Gin is the clear winner here, followed by vodka and lemon juice.
+
+Here the ggcharts package worked nicely, without presenting any issues.
 
 ```{r}
 cocktails %>%
