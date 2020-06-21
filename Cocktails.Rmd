@@ -3,6 +3,14 @@ title: "Cocktails"
 output: github_document
 ---
 
+As someone who had abstained from alcohol for the majority of my life span, I am quite clueless when it comes to good drink combinations. 
+
+Thus, exploring a couple of cocktail data sets AND filling out the gaps in my experience that formed from me not getting blackout drunk in my teenage years seemed like a fine idea.
+
+The data comes from the [Tidy Tuesday](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-05-26/readme.md) community, which in turn took it from Kaggle.
+
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, error = FALSE, message = FALSE, warning = FALSE)
 ```
@@ -406,6 +414,8 @@ kable(long, col.names = c("Drink name", "Length", "Drink Id"))
 # Let's plot some of the more interesting cases:
 
 Not as complicated as the names make them sound, huh?
+
+I was surprised at the combination of vanilla ice-cream and coke, but a source tells me this was common among kids even here in Lithuania!
 
 ```{r, fig.width= 9, fig.height= 5}
 

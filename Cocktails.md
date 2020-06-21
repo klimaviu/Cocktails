@@ -1,6 +1,17 @@
 Cocktails
 ================
 
+As someone who had abstained from alcohol for the majority of my life
+span, I am quite clueless when it comes to good drink combinations.
+
+Thus, exploring a couple of cocktail data sets AND filling out the gaps
+in my experience that formed from me not getting blackout drunk in my
+teenage years seemed like a fine idea.
+
+The data comes from the [Tidy
+Tuesday](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-05-26/readme.md)
+community, which in turn took it from Kaggle.
+
 # The distribution of alcoholic vs non-alcoholic drinks
 
 The results are not surprising - most of the cocktails are alcoholic.
@@ -136,6 +147,9 @@ There are certainly some intriguing specimens here.
 # Let’s plot some of the more interesting cases:
 
 Not as complicated as the names make them sound, huh?
+
+I was surprised at the combination of vanilla ice-cream and coke, but a
+source tells me this was common among kids even here in Lithuania\!
 
 ![](Cocktails_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
