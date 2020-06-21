@@ -279,3 +279,16 @@ cocktails %>%
   filter(glass %in% top_glass) %>% 
   ggplot()+
   geom_bar(aes(glass))
+
+library(stringr)
+
+boston_cocktails %>% 
+  mutate(
+    measure = ifelse(grepl("/", measure, fixed = TRUE),
+                     str_replace(measure, "[\d\s\d\/\d\/s\w]", "[\d\+\d\/\d]")
+                     str_replace(measure, "[\d\s\w]", "[\d]"))
+  )
+
+boston_cocktails$measure <- boston_cocktails$measure %>% 
+  str_replace_all(" oz", "") %>% 
+  str_replace_all("\\s", "+")
