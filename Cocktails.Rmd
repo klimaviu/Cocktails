@@ -3,7 +3,7 @@ title: "Cocktails"
 output: github_document
 ---
 
-As someone who had abstained from alcohol for the majority of my life span, I am quite clueless when it comes to good drink combinations. 
+As someone who had abstained from alcohol for the majority of their life span, I am quite clueless when it comes to good drink combinations. 
 
 Thus, exploring a couple of cocktail data sets AND filling out the gaps in my experience that formed from me not getting blackout drunk in my teenage years seemed like a fine idea.
 
@@ -30,6 +30,7 @@ library(cowplot)
 library(knitr)
 library(ggcharts)
 library(ggthemes)
+library(pals)
 
 ```
 
@@ -535,6 +536,27 @@ boston_cocktails %>%
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank())+
   scale_color_manual(values = wes_palette("Zissou1", type = "continuous", n = 16))
+  
+```
+
+# Alcoholic drinks containing milk:
+
+This one is for a friend.
+
+```{r, fig.width= 10, fig.height= 7}
+
+w_milk <- cocktails %>% 
+  filter(alcoholic == "Alcoholic",
+         ingredient == "milk") 
+
+w_milk <- w_milk$drink
+
+cocktails%>% 
+  filter(drink %in% w_milk)%>% 
+  ggplot(aes(drink, fill = ingredient))+
+  geom_bar(color = "black")+
+  theme(axis.text.x = element_text(angle = 90))+
+   scale_fill_manual(values=as.vector(polychrome(36)))
   
 
 ```

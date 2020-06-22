@@ -1,7 +1,7 @@
 Cocktails
 ================
 
-As someone who had abstained from alcohol for the majority of my life
+As someone who had abstained from alcohol for the majority of their life
 span, I am quite clueless when it comes to good drink combinations.
 
 Thus, exploring a couple of cocktail data sets AND filling out the gaps
@@ -176,3 +176,9 @@ The boston cocktail data set provides a measure for each ingredient,
 which is handy for anyone wanting to test the drink recipes.
 
 ![](Cocktails_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+# Alcoholic drinks containing milk:
+
+This one is for a friend.
+
+![](Cocktails_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
